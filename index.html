@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+    <link rel="icon"
+        href="" />
+    <title>Recipe Converter</title>
+    <script src="./index.js"></script>
+    <script src="./ingredients.js"></script>
+</head>
+
+<style>
+    form {
+        display: flex;
+        justify-content: left;
+        align-items: flex-start;
+        flex-direction: column;
+
+        width: 80%;
+        margin: auto;
+        margin-top: 20px;
+        padding: 15px 0px 15px 0px;
+        border: solid 1px rgb(208, 208, 208);
+        border-radius: 3px;
+
+        min-width: 200px;
+
+    }
+    form > * {
+        margin-left: 15px;
+    }
+    label {
+        width: 100%;
+    }
+    input, textarea {
+        max-width: calc(100% - 30px);
+        min-width: calc(100% - 30px);
+        margin: auto;
+    }
+    textarea {
+        min-height: 200px;
+    }
+</style>
+
+
+<body>
+    <form id="save-recipe">
+        <label for="title">Recipe Name</label>
+        <input name="title" type="text">
+
+        <br><label for="conversion">Convert to</label>
+        <select name="conversion" form="save-recipe">
+            <option value="metric">Rest of the world</option>
+            <option value="us">US</option>
+        </select>
+    
+        <br><label for="ingredients">Ingredients</label>
+        <textarea name="ingredients" form="save-recipe"></textarea>
+
+        <br><label for="ingredients-out">Converted amounts</label>
+        <textarea name="ingredients-out" ></textarea>
+        
+        <br><input value="Save" type="button" preventdefault="on" onclick="App.saveRecipe(event)">
+        <br><button onclick="(() => localStorage.clear())();">Clear</button>
+    </form>
+</body>
+
+</html>

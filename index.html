@@ -8,62 +8,44 @@
     <title>Recipe Converter</title>
     <script src="./js/index.js"></script>
     <script src="./js/ingredients.js"></script>
+    <link rel="stylesheet" href="./style/root.css">
 </head>
 
-<style>
-    form {
-        display: flex;
-        justify-content: left;
-        align-items: flex-start;
-        flex-direction: column;
-
-        width: 80%;
-        margin: auto;
-        margin-top: 20px;
-        padding: 15px 0px 15px 0px;
-        border: solid 1px rgb(208, 208, 208);
-        border-radius: 3px;
-
-        min-width: 200px;
-
-    }
-    form > * {
-        margin-left: 15px;
-    }
-    label {
-        width: 100%;
-    }
-    input, textarea {
-        max-width: calc(100% - 30px);
-        min-width: calc(100% - 30px);
-        margin: auto;
-    }
-    textarea {
-        min-height: 200px;
-    }
-</style>
-
-
 <body>
-    <form id="save-recipe">
-        <label for="title">Recipe Name</label>
-        <input name="title" type="text">
+    <div class="page-container">
+        <div class="header">
+            <span>Ingredient Converter</span>
+        </div>
+        <form id="save-recipe">
+            <label for="title">Recipe Name</label>
+            <input id="input-title" name="title" type="text">
 
-        <br><label for="conversion">Convert to</label>
-        <select name="conversion" form="save-recipe">
-            <option value="metric">Rest of the world</option>
-            <option value="us">US</option>
-        </select>
-    
-        <br><label for="ingredients">Ingredients</label>
-        <textarea name="ingredients" form="save-recipe"></textarea>
-
-        <br><label for="ingredients-out">Converted amounts</label>
-        <textarea name="ingredients-out" ></textarea>
+            <br><label for="conversion">Convert to</label>
+            <select name="conversion" form="save-recipe">
+                <option value="metric">Rest of the world</option>
+                <option value="us">US</option>
+            </select>
         
-        <br><input value="Save" type="button" preventdefault="on" onclick="App.saveRecipe(event)">
-        <br><button onclick="(() => localStorage.clear())();">Clear</button>
-    </form>
+            <br><label for="ingredients">Ingredients</label>
+            <textarea id="input-ingredients" name="ingredients" form="save-recipe"></textarea>
+            
+            <br><input value="Save" type="button" preventdefault="on" onclick="App.saveRecipe(event)">            
+        </form>
+
+        <form id="output">
+            <label for="ingredients-out">Converted amounts</label>
+            <textarea name="ingredients-out" ></textarea>
+        </form>
+
+        <div class="history">
+            
+            <button onclick="clearHistory(App);">Clear History</button><br><br>
+            <span>History:</span>
+            <div id="history-list">
+            </div>
+            
+        </div>
+    </div>
 </body>
 
 </html>

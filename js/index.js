@@ -1,7 +1,9 @@
 
-(load = () => {
+window.onload = () => {
     console.log(localStorage);
-})();
+    showHistory();
+    console.log("Showing history");
+}
 
 var App = {
 
@@ -27,6 +29,10 @@ var App = {
 
         // Convert the values and display
         displayConversion(ingredients.convertAmounts(selection));
+    },
+
+    clearHistory: function() {
+        this.history = [];
     }
 }
 
@@ -36,6 +42,8 @@ function logIngredientHistory(history, input) {
     history.push(input);
 
     localStorage.setItem("history", JSON.stringify(history));
+
+    showHistory();
 }
 
 function displayConversion(ingredients) {
@@ -264,4 +272,44 @@ class Ingredients {
             {return 'volume';}
         else {return 'mass'}
     }
+}
+
+function getHistory(index) {
+    let history = JSON.parse(localStorage.getItem("history"));
+    index = history.length - index - 1;
+
+    if (history[index]){ return history[index]; }
+    else {
+        return { title: "null", ingredients: "null" };
+    }
+}
+
+function showHistory() {
+    let list = document.getElementById("history-list");
+    let listDisplay = "";
+
+    let records = JSON.parse(localStorage.getItem("history")) ? JSON.parse(localStorage.getItem("history")).reverse() : [];
+    let l = records.length;
+
+    for (let i = 0; i < l; i++) {
+        let record = records[i];
+        listDisplay += `<button class="history-item" value="${i}" onclick="displaySelectedHistory(event)">${record.title}</button>`
+    }
+
+    list.innerHTML = listDisplay;
+}
+
+function displaySelectedHistory(event) {
+    let index = event.target.value;
+    console.log(index);
+    let history = getHistory(index);
+    console.log(history);
+    document.getElementById("input-title").value = history.title;
+    document.getElementById("input-ingredients").value = history.ingredients;
+}
+
+function clearHistory(App) {
+    localStorage.clear('history');
+    document.getElementById("history-list").innerHTML = "";
+    App.history = [];
 }

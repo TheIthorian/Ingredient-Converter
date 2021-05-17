@@ -213,6 +213,8 @@ form > #save {
 .footer {
     grid-area: footer;
     background-color: var(--background-dark);
+    bottom: 0;
+    display: none;
 }
 
 @media (max-width:650px) {

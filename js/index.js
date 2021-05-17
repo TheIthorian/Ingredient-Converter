@@ -143,7 +143,7 @@ class Ingredients {
         let items = this.ingredientText.split("\n");
 
         // this needs fixing to allow unitless amounts
-        let regex = /[0-9.\u00BC-\u00BE\u2150-\u215E]+\s*[a-z]+[\s()\t\n]/ig;
+        let regex = /[0-9.\u00BC-\u00BE\u2150-\u215E]+\s*[a-z]*[\s()\t\n]/ig;
 
         console.log("items: ", items);
 
@@ -152,17 +152,19 @@ class Ingredients {
 
             let amount = item.match(regex);
 
-            //console.log("Amount regex matches: ", amount);
+            console.log("Amount regex matches: ", amount);
 
             // Remove whitespace from amount, then seperate the units
             // If there were more than one units found, use the first valid one
-            let new_amount = {quant: null, unit: null};
+            // Otherwise set amount to 1
+            let new_amount = {quant: 1, unit: null};
             
             if (amount) {
                 for (let i = 0; i< amount.length; i++) {
-                    amount[i] = amount[i].replace(/[\s()]/g,'');
+                    amount[i] = amount[i].replace(/[\s()]/g,''); // 
+                    console.log("amount[i]: " + amount[i]);
                     let quant = amount[i].match(/[0-9.\u00BC-\u00BE\u2150-\u215E]+/)[0].trim();
-                    let unit = amount[i].match(/[a-z]+/gi)[0];
+                    let unit = amount[i].match(/[a-z]+/gi) ? amount[i].match(/[a-z]+/gi)[0] : null;
 
                     if (this.conversions()[unit]) {
                         new_amount = { quant: quant, unit: unit };
@@ -198,7 +200,7 @@ class Ingredients {
  
         if (!multiplier.match(/^[0-9]*\.?[0-9]*$/)) {multiplier = 1}
 
-        console.log(multiplier);
+        console.log("multiplier: " + multiplier);
 
         let convertedIngredientList = [];
 
@@ -213,9 +215,12 @@ class Ingredients {
             let factor = quant ? this.getConversionFactor(unit) : -1;
             let type = this.findUnitType(unit);
 
-            if (factor <= 0) {convertedIngredientList.push(`${this.ingredientList[i].item}`);}
+            console.log("Quant: " + quant);
+
+            if (factor <= 0) {convertedIngredientList.push(`(${quant}) ${this.ingredientList[i].item}`);}
             else {
-                unit = type == 'volume' ? 'ml' : 'g';
+                if (type === null) {unit = '';}
+                else {unit = type == 'volume' ? 'ml' : 'g';}
                 convertedIngredientList.push(`(${quant * factor} ${unit}) ${this.ingredientList[i].item}`);
             }
         }
@@ -280,6 +285,7 @@ class Ingredients {
     }
 
     findUnitType(unit) {
+        if (!unit) {return null;}
         if (["ml", "mil", "milliliter", "milliliters", "millilitre", "millilitres", "l", "litre", "litres", "litre", "litres", "tsp",
             "teaspoon", "teaspoons", "tbsp", "tablespoon", "tablespoons", "fl oz", "fluid ounce", "cup", "cups",
             "pint", "pints"].includes(unit)) 

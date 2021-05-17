@@ -1,15 +1,50 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Arvo&display=swap');
+
+* {
+    font-family: Arvo;
+}
+
 :root {
-    --background-light: #FAFAFA;
+    --background-light: #c6e6d0;
     --background-dark: #206175;
     --highlight: #dbd337;
     --danger: #d25944;
     --text-light: #FAFAFA;
+
+    --primary: #d25944;
 }
 
 button, input[type="button"] {
-    padding: 5px;
+    padding: 10px;
+    background-color: var(--primary);
+    color: var(--text-light);
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    box-shadow: none;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
 }
+button:hover, input[type="button"]:hover {
+    filter: brightness(120%);
+}
+span.ripple {
+    position: absolute; /* The absolute position we mentioned earlier */
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 600ms linear;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 10;
+}
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
 
 body {
     background-color: var(--background-light);
@@ -18,6 +53,8 @@ body {
 
 div.header {
     background-color: var(--background-dark);
+    font-size: 36px;
+    transition: all 100ms;
 }
 
 div.page-container {
@@ -29,6 +66,8 @@ div.page-container {
 
     grid-template-columns: 1fr 1fr;
     grid-template-rows:  50px 1fr 100px;
+
+    
 }
 
 #save-recipe {
@@ -51,20 +90,37 @@ form {
     width: 80%;
     padding: 20px;
     border: solid 1px rgb(208, 208, 208);
-    border-radius: 3px;
+    border-radius: 5px;
     margin-top: 30px;
 
     min-width: 200px;
+
+    background-color: var(--background-dark);
 }
 label {
     width: calc(100%);
     padding: 5px 0px 5px 0px;
+    margin: 5px 0px 5px 0px;
+    color: var(--text-light);
+    font-size: 18px;
 }
-input, textarea {
-    max-width: calc(100%);
-    min-width: calc(100%);
+input, textarea, select {
+    max-width: calc(100% - 10px);
+    min-width: calc(100% - 10px);
+    background-color: var(--text-light);
+    border-radius: 5px;
+    border: solid 1px rgb(208, 208, 208);
+    padding: 5px;
+    outline: none;
+    margin: 5px 0px 10px 0px;
 }
-select {max-width: calc(200px); margin-right: 15px;}
+input:focus:not(input[type="button"]), textarea:focus {
+    border-bottom: solid 3px var(--primary);
+}
+select {
+    max-width: calc(200px); 
+    margin-right: 15px;
+}
 textarea {
     min-height: 200px;
 }
@@ -83,16 +139,72 @@ textarea {
     grid-area: bottom;
     padding: 20px;
 }
-.history button.history-item {
+
+.history-group {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 5px 0px 5px 0px;
+}
+
+
+.history-group > .history-item {
     border: solid 1px rgb(208, 208, 208);
     border-radius: 3px;
-    text-decoration: none;
     padding: 5px;
-    list-style-type: none;
-    margin: 5px 0pc 5px 0px;
+    
+    
     cursor: pointer;
-    width: 100%;
-    background: none;
-    outline: none;
+    width: calc(100% - 50px);
+    height: 100%;
+    
     text-align: left;
+
+    list-style-type: none;
+    text-decoration: none;
+    background-color: var(--background-dark);
+    outline: none;
+    color: var(--text-light);    
+    position: relative;
+    overflow: hidden;
+    border: none;
+    
+}
+.history-group > button {
+    padding: 0px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    margin-left: 5px;
+}
+
+.column-split {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+}
+
+.column-split input {
+    width: 50%;
+}
+
+
+@media (max-width:560px) {
+    div.page-container {        
+        grid-template-columns: 1fr;
+        grid-template-rows:  50px 1fr auto 100px;
+        grid-template-areas: 
+            "top"
+            "left" 
+            "right"
+            "bottom";
+    }
+
+    div.header {
+        font-size: 24px;
+    }
 }

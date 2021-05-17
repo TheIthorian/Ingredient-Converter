@@ -3,6 +3,10 @@ window.onload = () => {
     console.log(localStorage);
     showHistory();
     console.log("Showing history");
+
+    let buttons = document.querySelectorAll("button,input[type='button']");
+    console.log(buttons);
+    for (button of buttons) {button.addEventListener("click", createRipple)};
 }
 
 var App = {
@@ -17,7 +21,10 @@ var App = {
         let title = form.elements.title.value;
         let dropdown = form.elements.conversion;
         let selection = dropdown.options[dropdown.selectedIndex].value;
+        let multiplier = form.elements.multiplier.value;
+
         let ingredients = new Ingredients(form.elements.ingredients.value);
+        
 
         // Log to history
         logIngredientHistory(
@@ -28,7 +35,7 @@ var App = {
             });
 
         // Convert the values and display
-        displayConversion(ingredients.convertAmounts(selection));
+        displayConversion(ingredients.convertAmounts(selection, multiplier));
     },
 
     clearHistory: function() {
@@ -135,6 +142,7 @@ class Ingredients {
         // Get the ingradients as a list
         let items = this.ingredientText.split("\n");
 
+        // this needs fixing to allow unitless amounts
         let regex = /[0-9.\u00BC-\u00BE\u2150-\u215E]+\s*[a-z]+[\s()\t\n]/ig;
 
         console.log("items: ", items);
@@ -184,7 +192,13 @@ class Ingredients {
         return factor ? factor : -1
     }
 
-    convertAmounts(selection) {
+    convertAmounts(selection, multiplier) {
+        
+        multiplier = multiplier.toString();
+ 
+        if (!multiplier.match(/^[0-9]*\.?[0-9]*$/)) {multiplier = 1}
+
+        console.log(multiplier);
 
         let convertedIngredientList = [];
 
@@ -194,7 +208,7 @@ class Ingredients {
 
             console.log("current amount: ", quant, unit);
 
-            quant = this.checkVulgar(quant);
+            quant = this.checkVulgar(quant) * multiplier;
 
             let factor = quant ? this.getConversionFactor(unit) : -1;
             let type = this.findUnitType(unit);
@@ -293,7 +307,10 @@ function showHistory() {
 
     for (let i = 0; i < l; i++) {
         let record = records[i];
-        listDisplay += `<button class="history-item" value="${i}" onclick="displaySelectedHistory(event)">${record.title}</button>`
+        listDisplay += `<div class="history-group">
+                        <button class="history-item" value="${i}" onclick="displaySelectedHistory(event); createRipple(event);">${record.title}</button>
+                        <button onclick="removeHistory(event)">&#10006</button>
+                        </div>`
     }
 
     list.innerHTML = listDisplay;
@@ -312,4 +329,24 @@ function clearHistory(App) {
     localStorage.clear('history');
     document.getElementById("history-list").innerHTML = "";
     App.history = [];
+}
+
+function validateInput(e, regex) {
+    let input = e.target.value;
+    e.target.value = input.replace(regex, '');
+}
+
+function removeHistory(e) {
+    let index = e.target.previousElementSibling.value;
+    let l = App.history.length;
+
+    console.log(App.history);
+    console.log(JSON.parse(localStorage.getItem("history")));
+
+    App.history.splice(index, 1);
+
+    let historyList = JSON.parse(localStorage.getItem("history"));
+    historyList.splice(l - index - 1, 1);
+    localStorage.setItem("history", JSON.stringify(historyList));
+    e.target.parentNode.style.display = 'none';
 }

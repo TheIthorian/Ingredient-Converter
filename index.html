@@ -3,6 +3,7 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon"
         href="" />
     <title>Recipe Converter</title>
@@ -38,7 +39,7 @@
             <label for="ingredients">Ingredients</label>
             <textarea id="input-ingredients" name="ingredients" form="save-recipe"></textarea>
             
-            <input value="Save" type="button" preventdefault="on" onclick="App.saveRecipe(event);">            
+            <input id="save" value="Save" type="button" preventdefault="on" onclick="App.saveRecipe(event);">            
         </form>
 
         <form id="output">
@@ -47,9 +48,12 @@
         </form>
 
         <div class="history">
-            <button onclick="clearHistory(App);">Clear History</button><br><br>
-            <span>History:</span>
+            <button onclick="clearHistory(App);">Clear History</button>
             <div id="history-list"></div> 
+        </div>
+        
+        <div class="footer">
+            
         </div>
     </div>
 </body>

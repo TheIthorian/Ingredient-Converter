@@ -340,9 +340,6 @@ function removeHistory(e) {
     let index = e.target.previousElementSibling.value;
     let l = App.history.length;
 
-    console.log(App.history);
-    console.log(JSON.parse(localStorage.getItem("history")));
-
     App.history.splice(index, 1);
 
     let historyList = JSON.parse(localStorage.getItem("history"));

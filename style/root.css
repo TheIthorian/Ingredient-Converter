@@ -62,10 +62,11 @@ div.page-container {
     grid-template-areas: 
         "top top"
         "left right"
-        "bottom bottom";
+        "bottom bottom"
+        "footer footer";
 
     grid-template-columns: 1fr 1fr;
-    grid-template-rows:  50px 1fr 100px;
+    grid-template-rows:  50px 1fr auto 40px;
 
     
 }
@@ -100,7 +101,7 @@ form {
 label {
     width: calc(100%);
     padding: 5px 0px 5px 0px;
-    margin: 5px 0px 5px 0px;
+    margin: 5px 0px 0px 0px;
     color: var(--text-light);
     font-size: 18px;
 }
@@ -116,6 +117,7 @@ input, textarea, select {
 }
 input:focus:not(input[type="button"]), textarea:focus {
     border-bottom: solid 3px var(--primary);
+    border-top: solid 3px var(--primary);
 }
 select {
     max-width: calc(200px); 
@@ -123,6 +125,11 @@ select {
 }
 textarea {
     min-height: 200px;
+}
+
+form > #save {
+    justify-self: center;
+    margin: auto;
 }
 
 .header {
@@ -138,11 +145,15 @@ textarea {
 .history {
     grid-area: bottom;
     padding: 20px;
+    margin-bottom: 50px;
+}
+
+.history > button {
+    max-width: fit-content;
 }
 
 .history-group {
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -158,7 +169,6 @@ textarea {
     
     cursor: pointer;
     width: calc(100% - 50px);
-    height: 100%;
     
     text-align: left;
 
@@ -193,15 +203,28 @@ textarea {
 }
 
 
-@media (max-width:560px) {
+.history {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    justify-content: left;
+}
+
+.footer {
+    grid-area: footer;
+    background-color: var(--background-dark);
+}
+
+@media (max-width:650px) {
     div.page-container {        
         grid-template-columns: 1fr;
-        grid-template-rows:  50px 1fr auto 100px;
+        grid-template-rows:  50px 1fr auto auto 40px;
         grid-template-areas: 
             "top"
             "left" 
             "right"
-            "bottom";
+            "bottom"
+            "footer";
     }
 
     div.header {

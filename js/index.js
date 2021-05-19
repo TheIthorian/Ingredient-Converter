@@ -112,6 +112,10 @@ class Ingredients {
         
             "pint": 475,
             "pints": "pint",
+
+            "quart": 945,
+            "quarts": "quart",
+            "qt": "quart",
         
             // Mass
             "g": 1,
@@ -164,7 +168,7 @@ class Ingredients {
                     amount[i] = amount[i].replace(/[\s()]/g,''); // 
                     console.log("amount[i]: " + amount[i]);
                     let quant = amount[i].match(/[0-9.\u00BC-\u00BE\u2150-\u215E]+/)[0].trim();
-                    let unit = amount[i].match(/[a-z]+/gi) ? amount[i].match(/[a-z]+/gi)[0] : null;
+                    let unit = amount[i].match(/[a-zA-Z]+/gi) ? amount[i].match(/[a-zA-Z]+/gi)[0].toLowerCase() : null;
 
                     if (this.conversions()[unit]) {
                         new_amount = { quant: quant, unit: unit };
@@ -217,11 +221,11 @@ class Ingredients {
 
             console.log("Quant: " + quant);
 
-            if (factor <= 0) {convertedIngredientList.push(`(${quant}) ${this.ingredientList[i].item}`);}
+            if (factor <= 0) {convertedIngredientList.push(`(${quant})\t${this.ingredientList[i].item}`);}
             else {
                 if (type === null) {unit = '';}
                 else {unit = type == 'volume' ? 'ml' : 'g';}
-                convertedIngredientList.push(`(${quant * factor} ${unit}) ${this.ingredientList[i].item}`);
+                convertedIngredientList.push(`(${quant * factor} ${unit})\t${this.ingredientList[i].item}`);
             }
         }
 
@@ -288,7 +292,7 @@ class Ingredients {
         if (!unit) {return null;}
         if (["ml", "mil", "milliliter", "milliliters", "millilitre", "millilitres", "l", "litre", "litres", "litre", "litres", "tsp",
             "teaspoon", "teaspoons", "tbsp", "tablespoon", "tablespoons", "fl oz", "fluid ounce", "cup", "cups",
-            "pint", "pints"].includes(unit)) 
+            "pint", "pints", "quart", "quarts", "qt"].includes(unit)) 
             {return 'volume';}
         else {return 'mass'}
     }

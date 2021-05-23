@@ -13,7 +13,6 @@ function createRipple(e) {
     let ripple = document.getElementsByClassName("ripple")[0];
 
     if (ripple) {
-        console.log("Removed")
         ripple.remove();
     }
 

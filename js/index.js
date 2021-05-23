@@ -1,11 +1,10 @@
 
 window.onload = () => {
     console.log(localStorage);
+    console.log(JSON.parse(localStorage.getItem("history")));
     showHistory();
-    console.log("Showing history");
 
     let buttons = document.querySelectorAll("button,input[type='button']");
-    console.log(buttons);
     for (button of buttons) {button.addEventListener("click", createRipple)};
 }
 
@@ -24,18 +23,20 @@ var App = {
         let multiplier = form.elements.multiplier.value;
 
         let ingredients = new Ingredients(form.elements.ingredients.value);
-        
+
+        // Convert the values and display
+        displayConversion(ingredients.convertAmounts(selection, multiplier));
 
         // Log to history
         logIngredientHistory(
             this.history, 
             {
                 "title": title, 
-                "ingredients": ingredients.ingredientText
+                "ingredients": ingredients.ingredientText,
+                'conversion': ingredients.convertedIngredientList
             });
 
-        // Convert the values and display
-        displayConversion(ingredients.convertAmounts(selection, multiplier));
+        
     },
 
     clearHistory: function() {
@@ -45,7 +46,9 @@ var App = {
 
 function logIngredientHistory(history, input) {
 
-    let log = {"title": input.title, "ingredients": input.ingredients};
+    history = removeHistoryByTitle(input.title);
+
+    let log = {"title": input.title, "ingredients": input.ingredients, 'conversion': input.conversion};
     history.push(input);
 
     localStorage.setItem("history", JSON.stringify(history));
@@ -147,26 +150,27 @@ class Ingredients {
         let items = this.ingredientText.split("\n");
 
         // this needs fixing to allow unitless amounts
-        let regex = /[0-9.\u00BC-\u00BE\u2150-\u215E]+\s*[a-z]*[\s()\t\n]/ig;
-
-        console.log("items: ", items);
+        let regex = /[0-9.\u00BC-\u00BE\u2150-\u215E\/]+\s*[a-z]*[\s()\t\n]/ig;
 
         // for each ingredient, find the amount
         for (const item of items){
 
             let amount = item.match(regex);
 
-            console.log("Amount regex matches: ", amount);
+            //console.log("Amount regex matches: ", amount);
 
             // Remove whitespace from amount, then seperate the units
             // If there were more than one units found, use the first valid one
             // Otherwise set amount to 1
             let new_amount = {quant: 1, unit: null};
+
+            if (item.length == 0) {new_amount.quant = null;}
+            else if (item.match(/\[.*\]$/)) {new_amount.quant = null;}
             
             if (amount) {
                 for (let i = 0; i< amount.length; i++) {
                     amount[i] = amount[i].replace(/[\s()]/g,''); // 
-                    console.log("amount[i]: " + amount[i]);
+                    //console.log("amount[i]: " + amount[i]);
                     let quant = amount[i].match(/[0-9.\u00BC-\u00BE\u2150-\u215E]+/)[0].trim();
                     let unit = amount[i].match(/[a-zA-Z]+/gi) ? amount[i].match(/[a-zA-Z]+/gi)[0].toLowerCase() : null;
 
@@ -181,7 +185,7 @@ class Ingredients {
             allItems.push({"quant": new_amount.quant, "unit": new_amount.unit, "item": item});
             
         }
-        console.log("Parsed Items: ", allItems);
+        //("Parsed Items: ", allItems);
         return allItems;
     }
 
@@ -204,28 +208,25 @@ class Ingredients {
  
         if (!multiplier.match(/^[0-9]*\.?[0-9]*$/)) {multiplier = 1}
 
-        console.log("multiplier: " + multiplier);
-
         let convertedIngredientList = [];
 
         for (let i = 0; i < this.ingredientList.length; i++){
             let quant = this.ingredientList[i].quant;
             let unit = this.ingredientList[i].unit;
-
-            console.log("current amount: ", quant, unit);
-
+            
             quant = this.checkVulgar(quant) * multiplier;
+            
+            if (quant) { quant =  `${quant}`.length > 3 ? quant.toFixed(1) : quant; }
 
             let factor = quant ? this.getConversionFactor(unit) : -1;
             let type = this.findUnitType(unit);
 
-            console.log("Quant: " + quant);
-
-            if (factor <= 0) {convertedIngredientList.push(`(${quant})\t${this.ingredientList[i].item}`);}
+            if (!quant) {convertedIngredientList.push(this.ingredientList[i].item);}
+            else if (factor <= 0) {convertedIngredientList.push(`(${quant}) - ${this.ingredientList[i].item}`);}
             else {
                 if (type === null) {unit = '';}
                 else {unit = type == 'volume' ? 'ml' : 'g';}
-                convertedIngredientList.push(`(${quant * factor} ${unit})\t${this.ingredientList[i].item}`);
+                convertedIngredientList.push(`(${quant * factor} ${unit}) - ${this.ingredientList[i].item}`);
             }
         }
 
@@ -304,35 +305,56 @@ function getHistory(index) {
 
     if (history[index]){ return history[index]; }
     else {
-        return { title: "null", ingredients: "null" };
+        return { title: "null", ingredients: "null", conversion: "null" };
     }
 }
 
 function showHistory() {
     let list = document.getElementById("history-list");
-    let listDisplay = "";
+    list.innerHTML = "";
 
     let records = JSON.parse(localStorage.getItem("history")) ? JSON.parse(localStorage.getItem("history")).reverse() : [];
     let l = records.length;
 
+    let fragment = document.createDocumentFragment();
+
     for (let i = 0; i < l; i++) {
         let record = records[i];
-        listDisplay += `<div class="history-group">
-                        <button class="history-item" value="${i}" onclick="displaySelectedHistory(event); createRipple(event);">${record.title}</button>
-                        <button onclick="removeHistory(event)">&#10006</button>
-                        </div>`
+
+        let historyGroup = document.createElement("div");
+        historyGroup.classList.add("history-group");
+
+        let historyItem = document.createElement("button");
+        historyItem.classList.add("history-item");
+        historyItem.value = i;
+        historyItem.addEventListener("click", displaySelectedHistory);
+        historyItem.addEventListener("click", createRipple);
+        historyItem.innerText = record.title;
+
+        let removeHistoryButton = document.createElement("button");
+        removeHistoryButton.innerHTML = '&#10006';
+        removeHistoryButton.addEventListener("click", removeHistory);
+
+        historyGroup.appendChild(historyItem);
+        historyGroup.appendChild(removeHistoryButton);
+
+        fragment.appendChild(historyGroup);
+
     }
 
-    list.innerHTML = listDisplay;
+    list.appendChild(fragment);
 }
 
 function displaySelectedHistory(event) {
-    let index = event.target.value;
-    console.log(index);
-    let history = getHistory(index);
-    console.log(history);
-    document.getElementById("input-title").value = history.title;
-    document.getElementById("input-ingredients").value = history.ingredients;
+    if (event.target.value) {
+        let index = event.target.value;
+        console.log(index);
+        let history = getHistory(index);
+
+        document.getElementById("input-title").value = history.title;
+        document.getElementById("input-ingredients").value = history.ingredients;
+        document.getElementById("ingredients-out").value = history.conversion.toString().replaceAll(",", "\n");
+    }
 }
 
 function clearHistory(App) {
@@ -356,4 +378,29 @@ function removeHistory(e) {
     historyList.splice(l - index - 1, 1);
     localStorage.setItem("history", JSON.stringify(historyList));
     e.target.parentNode.style.display = 'none';
+}
+
+function removeHistoryByTitle(title) {
+    let historyList = JSON.parse(localStorage.getItem("history"));
+    console.log("Current History: ", historyList);
+    let duplicate = true;
+
+    if (historyList) {
+
+        let l = historyList.length;
+        let newHistoryList = [];
+
+        newHistoryList = historyList.filter((index) => index.title.toLowerCase() != title.toLowerCase());
+
+        // if (duplicate) {
+        //     for (button of document.getElementsByClassName("history-item")) {
+        //         if (button.value == l - i - 1) {button.parentNode.style.display = 'none';}
+        //     }
+        // }
+
+        localStorage.setItem("history", JSON.stringify(newHistoryList));
+        console.log("New History: ", newHistoryList);
+
+        return newHistoryList
+    }
 }

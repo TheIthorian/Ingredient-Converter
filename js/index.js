@@ -403,4 +403,5 @@ function removeHistoryByTitle(title) {
 
         return newHistoryList
     }
+    else return [];
 }
